@@ -24,10 +24,8 @@ import org.acme.exception.BadRequest;
 import org.acme.exception.NotFound;
 import org.acme.utils.Database;
 import org.acme.utils.HttpResponse;
-import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import com.aayushatharva.brotli4j.common.annotations.Local;
 import com.github.javafaker.Faker;
 
 @Path("/sisrh/rest")
