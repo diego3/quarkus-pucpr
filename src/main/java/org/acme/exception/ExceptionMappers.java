@@ -37,4 +37,13 @@ public class ExceptionMappers {
             .build();
     }
 
+    @ServerExceptionMapper
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response map(Forbidden e) {
+        return Response
+            .status(Status.FORBIDDEN)
+            .entity(new HttpResponse(e.getMessage()))
+            .build();
+    }
+
 }

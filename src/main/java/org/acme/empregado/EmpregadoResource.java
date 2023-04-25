@@ -24,8 +24,10 @@ import org.acme.exception.BadRequest;
 import org.acme.exception.NotFound;
 import org.acme.utils.Database;
 import org.acme.utils.HttpResponse;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import com.aayushatharva.brotli4j.common.annotations.Local;
 import com.github.javafaker.Faker;
 
 @Path("/sisrh/rest")
@@ -40,6 +42,46 @@ public class EmpregadoResource {
         var all = new ArrayList<Empregado>();
 
         List<EmpregadoDoc> findAll = EmpregadoDoc.listAll();
+        for (var employee : findAll) {
+            all.add(new Empregado(
+                employee.matricula,
+                employee.nome,
+                employee.admissao.format(DateTimeFormatter.ofPattern("YYYY-MM-dd")),
+                employee.desligamento != null ? employee.desligamento.format(DateTimeFormatter.ofPattern("YYYY-MM-dd")) : "",
+                employee.salario
+            ));
+        }
+        return all;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/empregado/ativos")
+    public List<Empregado> listAllActive() {
+        var all = new ArrayList<Empregado>();
+
+        List<EmpregadoDoc> findAll = EmpregadoDoc.list("desligamento is null");
+
+        for (var employee : findAll) {
+            all.add(new Empregado(
+                employee.matricula,
+                employee.nome,
+                employee.admissao.format(DateTimeFormatter.ofPattern("YYYY-MM-dd")),
+                employee.desligamento != null ? employee.desligamento.format(DateTimeFormatter.ofPattern("YYYY-MM-dd")) : "",
+                employee.salario
+            ));
+        }
+        return all;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/empregado/inativos")
+    public List<Empregado> listAllInactives() {
+        var all = new ArrayList<Empregado>();
+
+        List<EmpregadoDoc> findAll = EmpregadoDoc.list("desligamento is not null");
+
         for (var employee : findAll) {
             all.add(new Empregado(
                 employee.matricula,
@@ -164,13 +206,14 @@ public class EmpregadoResource {
     public void seed() {
         var formatter2 = new SimpleDateFormat("YYYY-MM-dd");
         
-        for(var i = 199299; i < 199299 + 10; i++) {
+        for(var i = 515455; i < 515455 + 10; i++) {
             EmpregadoDoc newDoc = new EmpregadoDoc();
             newDoc.matricula = i;
             newDoc.admissao = LocalDate.parse(
                 formatter2.format(Faker.instance().date().birthday()), 
                 DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             newDoc.salario = Faker.instance().random().nextInt(1300, 10000);
+            newDoc.desligamento = LocalDate.now().minusDays(Faker.instance().random().nextInt(50, 200));
 
             newDoc.persist();
         }
